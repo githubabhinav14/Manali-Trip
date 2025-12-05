@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Planner - Manage Your Journey</title>
+    <link rel="stylesheet" href="trip-planner.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">Manali Trip</h1>
+                <p class="header-subtitle">DEC 21 to DEC 29</p>
+                <div class="trip-countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="days">00</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="seconds">00</span>
+                        <span class="countdown-label">Seconds</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <div class="header-decoration">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="trains">Train Tickets</button>
+            <button class="tab-btn" data-tab="hotels">Hotels</button>
+            <button class="tab-btn" data-tab="spending">Spending</button>
+            <button class="tab-btn" data-tab="itinerary">Itinerary</button>
+            <button class="tab-btn" data-tab="checklist">Checklist</button>
+                        <button class="tab-btn" data-tab="gallery">📸 Gallery</button>
+                    </nav>
+
+        <!-- Tab Content -->
+        <main class="tab-content">
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-pane active">
+                <h2>Dashboard</h2>
+                
+                <!-- Weather Widget -->
+                <div class="weather-widget">
+                    <div class="weather-header">
+                        <h3>🌤️ Weather in Manali</h3>
+                        <button class="weather-refresh" onclick="refreshWeather()">🔄</button>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-main">
+                            <span class="weather-temp" id="weatherTemp">--°C</span>
+                            <span class="weather-desc" id="weatherDesc">Loading...</span>
+                        </div>
+                        <div class="weather-details">
+                            <div class="weather-item">
+                                <span class="weather-label">Feels Like</span>
+                                <span class="weather-value" id="feelsLike">--°C</span>
+                            </div>
+                            <div class="weather-item">
+                                <span class="weather-label">Humidity</span>
+                                <span class="weather-value" id="humidity">--%</span>
+                            </div>
+                            <div class="weather-item">
+                                <span class="weather-label">Wind</span>
+                                <span class="weather-value" id="windSpeed">-- km/h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card" onclick="switchTab('trains')">
+                        <div class="card-icon">🎫</div>
+                        <h3>Train Tickets</h3>
+                        <p>View your train bookings</p>
+                    </div>
+                    <div class="dashboard-card" onclick="switchTab('hotels')">
+                        <div class="card-icon">🏨</div>
+                        <h3>Hotel Bookings</h3>
+                        <p>Manage accommodations</p>
+                    </div>
+                    <div class="dashboard-card" onclick="switchTab('spending')">
+                        <div class="card-icon">💰</div>
+                        <h3>Daily Spending</h3>
+                        <p>Track your expenses</p>
+                    </div>
+                    <div class="dashboard-card" onclick="switchTab('itinerary')">
+                        <div class="card-icon">📅</div>
+                        <h3>Itinerary</h3>
+                        <p>Plan day-wise activities</p>
+                    </div>
+                    <div class="dashboard-card" onclick="switchTab('checklist')">
+                        <div class="card-icon">✅</div>
+                        <h3>Trip Checklist</h3>
+                        <p>Pack & prepare for your trip</p>
+                    </div>
+                    <div class="dashboard-card" onclick="exportTripData()">
+                        <div class="card-icon">📊</div>
+                        <h3>Export Data</h3>
+                        <p>Download trip summary</p>
+                    </div>
+                    <a href="https://drive.google.com/drive/folders/1Kw_HVdGEUdVa_lEALANbPeg1gk5stxJ7?usp=sharing" target="_blank" class="dashboard-card external-link">
+                        <div class="card-icon">📸</div>
+                        <h3>Google Drive Photos</h3>
+                        <p>View trip photos</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Train Tickets Tab -->
+            <section id="trains" class="tab-pane">
+                <h2>Train Tickets</h2>
+                <div class="tickets-grid">
+                    <div class="ticket-card">
+                        <h3>🚂 Departure Ticket</h3>
+                        <p>Download and view your departure ticket</p>
+                        <button onclick="window.open('path/to/departure-ticket.pdf', '_blank')" class="btn btn-primary">
+                            📥 Open PDF
+                        </button>
+                    </div>
+                    <div class="ticket-card">
+                        <h3>🚂 Return Ticket</h3>
+                        <p>Download and view your return ticket</p>
+                        <button onclick="window.open('path/to/return-ticket.pdf', '_blank')" class="btn btn-primary">
+                            📥 Open PDF
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hotels Tab -->
+            <section id="hotels" class="tab-pane">
+                <h2>Hotel Bookings</h2>
+                <div class="form-container">
+                    <form id="hotelForm" class="form">
+                        <div class="form-group">
+                            <label for="hotelName">Hotel Name</label>
+                            <input type="text" id="hotelName" placeholder="Enter hotel name" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hotelPrice">Price</label>
+                                <input type="number" id="hotelPrice" placeholder="0.00" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkIn">Check-in Time</label>
+                                <input type="time" id="checkIn" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="checkOut">Check-out Time</label>
+                                <input type="time" id="checkOut" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hotelLink">Hotel Link</label>
+                                <input type="url" id="hotelLink" placeholder="https://example.com">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">+ Add Hotel</button>
+                    </form>
+                </div>
+
+                <div id="hotelsList" class="cards-grid"></div>
+            </section>
+
+            <!-- Daily Spending Tab -->
+            <section id="spending" class="tab-pane">
+                <h2>Daily Spending</h2>
+                <div class="form-container">
+                    <form id="spendingForm" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="spendDay">Day</label>
+                                <input type="text" id="spendDay" placeholder="Day 1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="spendAmount">Amount</label>
+                                <input type="number" id="spendAmount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="spendNotes">Notes (Optional)</label>
+                            <input type="text" id="spendNotes" placeholder="Food, transport, activities...">
+                        </div>
+                        <button type="submit" class="btn btn-primary">+ Add Expense</button>
+                    </form>
+                </div>
+
+                <div class="spending-summary">
+                    <h3>Trip Summary</h3>
+                    <p class="total-spending">Total Spending: <strong id="totalAmount">$0.00</strong></p>
+                </div>
+
+                <div class="analytics-section">
+                    <h3>Spending Analytics</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h4>📊 Category Breakdown</h4>
+                            <canvas id="categoryChart" width="300" height="200"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>📈 Daily Spending Trend</h4>
+                            <canvas id="dailyChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="avgDaily">$0</span>
+                            <span class="stat-label">Avg Daily</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="highestDay">$0</span>
+                            <span class="stat-label">Highest Day</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="lowestDay">$0</span>
+                            <span class="stat-label">Lowest Day</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="spendingList" class="cards-grid"></div>
+            </section>
+
+            <!-- Itinerary Tab -->
+            <section id="itinerary" class="tab-pane">
+                <h2>Day-wise Itinerary</h2>
+                <div class="form-container">
+                    <form id="itineraryForm" class="form">
+                        <div class="form-group">
+                            <label for="planDay">Day / Date</label>
+                            <input type="text" id="planDay" placeholder="Day 1 - May 20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="planPlace">Place to Visit</label>
+                            <input type="text" id="planPlace" placeholder="Enter location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="planDescription">Description / Notes</label>
+                            <textarea id="planDescription" placeholder="What's planned here?" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="planTiming">Timing (Optional)</label>
+                            <input type="text" id="planTiming" placeholder="10:00 AM - 5:00 PM">
+                        </div>
+                        <button type="submit" class="btn btn-primary">+ Add Plan</button>
+                    </form>
+                </div>
+
+                <div id="itineraryList" class="cards-grid"></div>
+            </section>
+
+            <!-- Checklist Tab -->
+            <section id="checklist" class="tab-pane">
+                <h2>Trip Checklist</h2>
+                <div class="form-container">
+                    <form id="checklistForm" class="form">
+                        <div class="form-group">
+                            <label for="checklistItem">Item to Pack/Do</label>
+                            <input type="text" id="checklistItem" placeholder="e.g., Passport, Camera, Book hotel..." required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="checklistCategory">Category</label>
+                                <select id="checklistCategory" required>
+                                    <option value="documents">📄 Documents</option>
+                                    <option value="clothing">👕 Clothing</option>
+                                    <option value="electronics">📱 Electronics</option>
+                                    <option value="toiletries">🧴 Toiletries</option>
+                                    <option value="misc">📦 Miscellaneous</option>
+                                    <option value="tasks">✅ Tasks</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="checklistPriority">Priority</label>
+                                <select id="checklistPriority" required>
+                                    <option value="high">🔴 High</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="low">🟢 Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">+ Add Item</button>
+                    </form>
+                </div>
+
+                <div class="checklist-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalItems">0</span>
+                        <span class="stat-label">Total Items</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="completedItems">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="progressPercent">0%</span>
+                        <span class="stat-label">Progress</span>
+                    </div>
+                </div>
+
+                <div id="checklistList" class="checklist-grid"></div>
+            </section>
+
+            <!-- Photo Gallery Tab -->
+            <section id="gallery" class="tab-pane">
+                <h2>Photo Gallery</h2>
+                <div class="form-container">
+                    <form id="galleryForm" class="form">
+                        <div class="form-group">
+                            <label for="photoInput">Add Photos</label>
+                            <input type="file" id="photoInput" multiple accept="image/*" class="file-input">
+                            <div class="file-input-label">
+                                <span>📷 Choose photos or drag & drop here</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="photoCategory">Category</label>
+                            <select id="photoCategory" required>
+                                <option value="scenery">🏔️ Scenery</option>
+                                <option value="food">🍽️ Food</option>
+                                <option value="activities">🎯 Activities</option>
+                                <option value="people">👥 People</option>
+                                <option value="accommodation">🏨 Accommodation</option>
+                                <option value="transport">🚗 Transport</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">+ Add Photos</button>
+                    </form>
+                </div>
+
+                <div class="gallery-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalPhotos">0</span>
+                        <span class="stat-label">Total Photos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="sceneryCount">0</span>
+                        <span class="stat-label">Scenery</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="foodCount">0</span>
+                        <span class="stat-label">Food</span>
+                    </div>
+                </div>
+
+                <div class="gallery-filters">
+                    <button class="filter-btn active" data-filter="all">All Photos</button>
+                    <button class="filter-btn" data-filter="scenery">🏔️ Scenery</button>
+                    <button class="filter-btn" data-filter="food">🍽️ Food</button>
+                    <button class="filter-btn" data-filter="activities">🎯 Activities</button>
+                    <button class="filter-btn" data-filter="people">👥 People</button>
+                    <button class="filter-btn" data-filter="accommodation">🏨 Accommodation</button>
+                    <button class="filter-btn" data-filter="transport">🚗 Transport</button>
+                </div>
+
+                <div id="galleryGrid" class="gallery-grid"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal for editing -->
+    <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Edit Entry</h3>
+            <form id="editForm" class="form"></form>
+        </div>
+    </div>
+
+    <script src="trip-planner.js"></script>
+</body>
+</html>
