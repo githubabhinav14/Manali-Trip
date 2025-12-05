@@ -194,16 +194,41 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="spendDay">Day</label>
-                                <input type="text" id="spendDay" placeholder="Day 1" required>
+                                <select id="spendDay" required>
+                                    <option value="">Select Day</option>
+                                    <option value="Day 1 - Sunday (21 Dec)">Day 1 - Sunday (21 Dec)</option>
+                                    <option value="Day 2 - Monday (22 Dec)">Day 2 - Monday (22 Dec)</option>
+                                    <option value="Day 3 - Tuesday (23 Dec)">Day 3 - Tuesday (23 Dec)</option>
+                                    <option value="Day 4 - Wednesday (24 Dec)">Day 4 - Wednesday (24 Dec)</option>
+                                    <option value="Day 5 - Thursday (25 Dec)">Day 5 - Thursday (25 Dec)</option>
+                                    <option value="Day 6 - Friday (26 Dec)">Day 6 - Friday (26 Dec)</option>
+                                    <option value="Day 7 - Saturday (27 Dec)">Day 7 - Saturday (27 Dec)</option>
+                                    <option value="Day 8 - Sunday (28 Dec)">Day 8 - Sunday (28 Dec)</option>
+                                    <option value="Day 9 - Monday (29 Dec)">Day 9 - Monday (29 Dec)</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="spendAmount">Amount</label>
+                                <label for="spendAmount">Amount (₹)</label>
                                 <input type="number" id="spendAmount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="spendNotes">Notes (Optional)</label>
-                            <input type="text" id="spendNotes" placeholder="Food, transport, activities...">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="spendPerson">Person Name</label>
+                                <select id="spendPerson" required>
+                                    <option value="">Select Person</option>
+                                    <option value="Sahil">Sahil</option>
+                                    <option value="Akhil">Akhil</option>
+                                    <option value="Abhinav">Abhinav</option>
+                                    <option value="Ansh">Ansh</option>
+                                    <option value="Ankith">Ankith</option>
+                                    <option value="Jitender">Jitender</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="spendNotes">Notes (Optional)</label>
+                                <input type="text" id="spendNotes" placeholder="Food, transport, activities...">
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">+ Add Expense</button>
                     </form>
@@ -218,7 +243,7 @@
                     <h3>Spending Analytics</h3>
                     <div class="analytics-grid">
                         <div class="analytics-card">
-                            <h4>📊 Category Breakdown</h4>
+                            <h4>� Person-wise Spending</h4>
                             <canvas id="categoryChart" width="300" height="200"></canvas>
                         </div>
                         <div class="analytics-card">
@@ -228,15 +253,15 @@
                     </div>
                     <div class="analytics-stats">
                         <div class="stat-item">
-                            <span class="stat-number" id="avgDaily">$0</span>
+                            <span class="stat-number" id="avgDaily">₹0</span>
                             <span class="stat-label">Avg Daily</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number" id="highestDay">$0</span>
+                            <span class="stat-number" id="highestDay">₹0</span>
                             <span class="stat-label">Highest Day</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number" id="lowestDay">$0</span>
+                            <span class="stat-number" id="lowestDay">₹0</span>
                             <span class="stat-label">Lowest Day</span>
                         </div>
                     </div>

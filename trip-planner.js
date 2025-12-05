@@ -379,7 +379,10 @@ document.getElementById("spendingForm").addEventListener("submit", (e) => {
   const expense = {
     day: document.getElementById("spendDay").value,
     amount: Number.parseFloat(document.getElementById("spendAmount").value),
+    person: document.getElementById("spendPerson").value,
     notes: document.getElementById("spendNotes").value,
+    timestamp: new Date().toLocaleString(),
+    dateAdded: new Date().toISOString()
   }
 
   dataManager.addSpending(expense)
@@ -392,7 +395,7 @@ function renderSpending() {
   list.innerHTML = ""
 
   const total = dataManager.spending.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-  document.getElementById("totalAmount").textContent = `$${total.toFixed(2)}`
+  document.getElementById("totalAmount").textContent = `₹${total.toFixed(2)}`
 
   dataManager.spending.forEach((item) => {
     const itemElement = document.createElement("div")
@@ -400,11 +403,16 @@ function renderSpending() {
     itemElement.innerHTML = `
       <div class="card-header">
         <h3>${item.day}</h3>
-        <span class="amount">$${parseFloat(item.amount).toFixed(2)}</span>
+        <span class="amount">₹${parseFloat(item.amount).toFixed(2)}</span>
       </div>
-      ${item.notes ? `<p>${item.notes}</p>` : ""}
+      <div class="expense-details">
+        <p><strong>Person:</strong> ${item.person}</p>
+        ${item.notes ? `<p><strong>Notes:</strong> ${item.notes}</p>` : ""}
+        <p><strong>Added:</strong> ${item.timestamp}</p>
+      </div>
       <div class="card-actions">
-        <button class="btn btn-danger btn-small" onclick="deleteSpending(${item.id})">Delete</button>
+        <button class="btn btn-secondary btn-small" onclick="editSpending(${item.id})">✏️ Edit</button>
+        <button class="btn btn-danger btn-small" onclick="deleteSpendingItem(${item.id})">🗑️ Delete</button>
       </div>
     `
     list.appendChild(itemElement)
@@ -423,38 +431,41 @@ function updateSpendingAnalytics() {
   const highestDay = Math.max(...amounts)
   const lowestDay = Math.min(...amounts)
 
-  document.getElementById("avgDaily").textContent = `$${avgDaily.toFixed(2)}`
-  document.getElementById("highestDay").textContent = `$${highestDay.toFixed(2)}`
-  document.getElementById("lowestDay").textContent = `$${lowestDay.toFixed(2)}`
+  document.getElementById("avgDaily").textContent = `₹${avgDaily.toFixed(2)}`
+  document.getElementById("highestDay").textContent = `₹${highestDay.toFixed(2)}`
+  document.getElementById("lowestDay").textContent = `₹${lowestDay.toFixed(2)}`
 
-  // Draw category chart
-  drawCategoryChart()
+  // Draw category chart (by person)
+  drawPersonChart()
   
   // Draw daily trend chart
   drawDailyChart()
+  
+  // Draw person-wise spending chart
+  drawPersonSpendingChart()
 }
 
-function drawCategoryChart() {
+function drawPersonChart() {
   const canvas = document.getElementById("categoryChart")
   const ctx = canvas.getContext("2d")
   
   // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   
-  // Group spending by category (using notes as category)
-  const categories = {}
+  // Group spending by person
+  const persons = {}
   dataManager.spending.forEach(item => {
-    const category = item.notes || "Other"
-    if (!categories[category]) {
-      categories[category] = 0
+    const person = item.person || "Unknown"
+    if (!persons[person]) {
+      persons[person] = 0
     }
-    categories[category] += parseFloat(item.amount)
+    persons[person] += parseFloat(item.amount)
   })
   
-  const categoryData = Object.entries(categories)
-  if (categoryData.length === 0) return
+  const personData = Object.entries(persons)
+  if (personData.length === 0) return
   
-  const total = categoryData.reduce((sum, [, amount]) => sum + amount, 0)
+  const total = personData.reduce((sum, [, amount]) => sum + amount, 0)
   const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"]
   
   // Draw pie chart
@@ -463,7 +474,7 @@ function drawCategoryChart() {
   const centerY = canvas.height / 2
   const radius = Math.min(centerX, centerY) - 20
   
-  categoryData.forEach(([category, amount], index) => {
+  personData.forEach(([person, amount], index) => {
     const sliceAngle = (amount / total) * 2 * Math.PI
     
     // Draw slice
@@ -483,9 +494,109 @@ function drawCategoryChart() {
     ctx.font = "12px Arial"
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
-    ctx.fillText(`${Math.round((amount / total) * 100)}%`, labelX, labelY)
+    ctx.fillText(`${person}`, labelX, labelY - 8)
+    ctx.fillText(`₹${amount.toFixed(0)}`, labelX, labelY + 8)
     
     currentAngle += sliceAngle
+  })
+}
+
+function drawPersonSpendingChart() {
+  // Create a new canvas for person-wise daily spending if it doesn't exist
+  let personCanvas = document.getElementById("personChart")
+  if (!personCanvas) {
+    // Add new canvas to analytics section
+    const analyticsGrid = document.querySelector(".analytics-grid")
+    const newCard = document.createElement("div")
+    newCard.className = "analytics-card"
+    newCard.innerHTML = `
+      <h4>👥 Person-wise Daily Spending</h4>
+      <canvas id="personChart" width="300" height="200"></canvas>
+    `
+    analyticsGrid.appendChild(newCard)
+    personCanvas = document.getElementById("personChart")
+  }
+  
+  const ctx = personCanvas.getContext("2d")
+  ctx.clearRect(0, 0, personCanvas.width, personCanvas.height)
+  
+  if (dataManager.spending.length === 0) return
+  
+  // Get unique persons and days
+  const persons = [...new Set(dataManager.spending.map(item => item.person))]
+  const days = [...new Set(dataManager.spending.map(item => item.day.split(' - ')[0]))]
+  
+  const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"]
+  
+  // Chart dimensions
+  const padding = 30
+  const chartWidth = personCanvas.width - 2 * padding
+  const chartHeight = personCanvas.height - 2 * padding
+  
+  // Draw axes
+  ctx.strokeStyle = "#e5e7eb"
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(padding, padding)
+  ctx.lineTo(padding, personCanvas.height - padding)
+  ctx.lineTo(personCanvas.width - padding, personCanvas.height - padding)
+  ctx.stroke()
+  
+  // Calculate max amount for scaling
+  const maxAmount = Math.max(...dataManager.spending.map(item => parseFloat(item.amount)))
+  
+  // Group data by day and person
+  const dayPersonData = {}
+  dataManager.spending.forEach(item => {
+    const day = item.day.split(' - ')[0]
+    if (!dayPersonData[day]) dayPersonData[day] = {}
+    if (!dayPersonData[day][item.person]) dayPersonData[day][item.person] = 0
+    dayPersonData[day][item.person] += parseFloat(item.amount)
+  })
+  
+  // Draw grouped bar chart
+  const barWidth = chartWidth / (days.length * persons.length + days.length - 1) * 0.8
+  const groupSpacing = barWidth * 0.2
+  
+  days.forEach((day, dayIndex) => {
+    persons.forEach((person, personIndex) => {
+      const amount = dayPersonData[day]?.[person] || 0
+      const barHeight = (amount / maxAmount) * chartHeight * 0.8
+      const x = padding + dayIndex * (persons.length * barWidth + groupSpacing) + personIndex * barWidth
+      const y = personCanvas.height - padding - barHeight
+      
+      // Draw bar
+      ctx.fillStyle = colors[persons.indexOf(person) % colors.length]
+      ctx.fillRect(x, y, barWidth, barHeight)
+      
+      // Draw value label
+      if (amount > 0) {
+        ctx.fillStyle = "#374151"
+        ctx.font = "10px Arial"
+        ctx.textAlign = "center"
+        ctx.fillText(`₹${amount.toFixed(0)}`, x + barWidth / 2, y - 5)
+      }
+    })
+    
+    // Draw day label
+    ctx.fillStyle = "#374151"
+    ctx.font = "10px Arial"
+    ctx.textAlign = "center"
+    ctx.fillText(day, padding + dayIndex * (persons.length * barWidth + groupSpacing) + (persons.length * barWidth) / 2, personCanvas.height - padding + 15)
+  })
+  
+  // Draw legend
+  persons.forEach((person, index) => {
+    const legendX = padding + index * 60
+    const legendY = 15
+    
+    ctx.fillStyle = colors[index % colors.length]
+    ctx.fillRect(legendX, legendY, 12, 12)
+    
+    ctx.fillStyle = "#374151"
+    ctx.font = "10px Arial"
+    ctx.textAlign = "left"
+    ctx.fillText(person, legendX + 16, legendY + 9)
   })
 }
 
@@ -498,13 +609,21 @@ function drawDailyChart() {
   
   if (dataManager.spending.length === 0) return
   
-  const dailyData = dataManager.spending.map(item => ({
-    day: item.day,
-    amount: parseFloat(item.amount)
-  }))
+  // Group spending by day (extract day number from day string)
+  const dailyTotals = {}
+  dataManager.spending.forEach(item => {
+    const dayMatch = item.day.match(/Day (\d+)/)
+    const dayNumber = dayMatch ? dayMatch[1] : 'Unknown'
+    if (!dailyTotals[dayNumber]) {
+      dailyTotals[dayNumber] = 0
+    }
+    dailyTotals[dayNumber] += parseFloat(item.amount)
+  })
   
-  const maxAmount = Math.max(...dailyData.map(d => d.amount))
-  const minAmount = Math.min(...dailyData.map(d => d.amount))
+  const dailyData = Object.entries(dailyTotals).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+  if (dailyData.length === 0) return
+  
+  const maxAmount = Math.max(...dailyData.map(d => d[1]))
   
   // Chart dimensions
   const padding = 20
@@ -525,7 +644,8 @@ function drawDailyChart() {
   const barSpacing = chartWidth / dailyData.length * 0.2
   
   dailyData.forEach((data, index) => {
-    const barHeight = ((data.amount - minAmount) / (maxAmount - minAmount)) * chartHeight * 0.8
+    const [day, amount] = data
+    const barHeight = (amount / maxAmount) * chartHeight * 0.8
     const x = padding + index * (barWidth + barSpacing) + barSpacing / 2
     const y = canvas.height - padding - barHeight
     
@@ -537,10 +657,10 @@ function drawDailyChart() {
     ctx.fillStyle = "#374151"
     ctx.font = "10px Arial"
     ctx.textAlign = "center"
-    ctx.fillText(`$${data.amount}`, x + barWidth / 2, y - 5)
+    ctx.fillText(`₹${amount.toFixed(0)}`, x + barWidth / 2, y - 5)
     
     // Draw day label
-    ctx.fillText(data.day, x + barWidth / 2, canvas.height - padding + 15)
+    ctx.fillText(`Day ${day}`, x + barWidth / 2, canvas.height - padding + 15)
   })
 }
 
@@ -562,16 +682,39 @@ function editSpending(id) {
         <div class="form-row">
             <div class="form-group">
                 <label for="editSpendDay">Day</label>
-                <input type="text" id="editSpendDay" value="${expense.day}" required>
+                <select id="editSpendDay" required>
+                    <option value="Day 1 - Sunday (21 Dec)" ${expense.day === 'Day 1 - Sunday (21 Dec)' ? 'selected' : ''}>Day 1 - Sunday (21 Dec)</option>
+                    <option value="Day 2 - Monday (22 Dec)" ${expense.day === 'Day 2 - Monday (22 Dec)' ? 'selected' : ''}>Day 2 - Monday (22 Dec)</option>
+                    <option value="Day 3 - Tuesday (23 Dec)" ${expense.day === 'Day 3 - Tuesday (23 Dec)' ? 'selected' : ''}>Day 3 - Tuesday (23 Dec)</option>
+                    <option value="Day 4 - Wednesday (24 Dec)" ${expense.day === 'Day 4 - Wednesday (24 Dec)' ? 'selected' : ''}>Day 4 - Wednesday (24 Dec)</option>
+                    <option value="Day 5 - Thursday (25 Dec)" ${expense.day === 'Day 5 - Thursday (25 Dec)' ? 'selected' : ''}>Day 5 - Thursday (25 Dec)</option>
+                    <option value="Day 6 - Friday (26 Dec)" ${expense.day === 'Day 6 - Friday (26 Dec)' ? 'selected' : ''}>Day 6 - Friday (26 Dec)</option>
+                    <option value="Day 7 - Saturday (27 Dec)" ${expense.day === 'Day 7 - Saturday (27 Dec)' ? 'selected' : ''}>Day 7 - Saturday (27 Dec)</option>
+                    <option value="Day 8 - Sunday (28 Dec)" ${expense.day === 'Day 8 - Sunday (28 Dec)' ? 'selected' : ''}>Day 8 - Sunday (28 Dec)</option>
+                    <option value="Day 9 - Monday (29 Dec)" ${expense.day === 'Day 9 - Monday (29 Dec)' ? 'selected' : ''}>Day 9 - Monday (29 Dec)</option>
+                </select>
             </div>
             <div class="form-group">
-                <label for="editSpendAmount">Amount</label>
+                <label for="editSpendAmount">Amount (₹)</label>
                 <input type="number" id="editSpendAmount" value="${expense.amount}" step="0.01" required>
             </div>
         </div>
-        <div class="form-group">
-            <label for="editSpendNotes">Notes</label>
-            <input type="text" id="editSpendNotes" value="${expense.notes || ""}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editSpendPerson">Person</label>
+                <select id="editSpendPerson" required>
+                    <option value="Sahil" ${expense.person === 'Sahil' ? 'selected' : ''}>Sahil</option>
+                    <option value="Akhil" ${expense.person === 'Akhil' ? 'selected' : ''}>Akhil</option>
+                    <option value="Abhinav" ${expense.person === 'Abhinav' ? 'selected' : ''}>Abhinav</option>
+                    <option value="Ansh" ${expense.person === 'Ansh' ? 'selected' : ''}>Ansh</option>
+                    <option value="Ankith" ${expense.person === 'Ankith' ? 'selected' : ''}>Ankith</option>
+                    <option value="Jitender" ${expense.person === 'Jitender' ? 'selected' : ''}>Jitender</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editSpendNotes">Notes</label>
+                <input type="text" id="editSpendNotes" value="${expense.notes || ""}">
+            </div>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 15px;">
             <button type="button" class="btn btn-primary" onclick="saveSpendingEdit(${id})">Save</button>
@@ -586,7 +729,9 @@ function saveSpendingEdit(id) {
   const expense = {
     day: document.getElementById("editSpendDay").value,
     amount: Number.parseFloat(document.getElementById("editSpendAmount").value),
+    person: document.getElementById("editSpendPerson").value,
     notes: document.getElementById("editSpendNotes").value,
+    timestamp: new Date().toLocaleString()
   }
 
   dataManager.updateSpending(id, expense)
